@@ -21,6 +21,8 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
   private final int NORME=1;
   private final int RAPIDE=2;
   
+  // vies
+  private int vies;
 
   // Champs d'instance
   private Thread action;
@@ -54,6 +56,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
   }
 
   public void initialiseNiveau() {
+      vies = 3;
 
     // Arrêt du thread action s'il est en cours d'exécution.
     fini=true;
@@ -221,11 +224,16 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
           }
           break;
 
-        case SORT :
-          JOptionPane.showMessageDialog(this,"C'est perdu !","Casse briques",
-                        JOptionPane.INFORMATION_MESSAGE);
-          fini=true;
-          break;
+    case SORT :
+        vies--;
+        if (vies > 0) {
+            JOptionPane.showMessageDialog(this, "Balle perdue ! Vies restantes : " + vies, "Casse briques", JOptionPane.INFORMATION_MESSAGE);
+            phase = ATTEND;
+        } else {
+            JOptionPane.showMessageDialog(this, "C'est perdu ! Game Over.", "Casse briques", JOptionPane.INFORMATION_MESSAGE);
+            fini = true;
+    }
+    break;
 
         case GAGNE :
           JOptionPane.showMessageDialog(this,"Bravo, vous avez gagné !",
@@ -301,6 +309,9 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
     // Au tout départ le mur n'existe pas
     if(mur!=null)
       mur.dessine(comp2D);
+    // Affichage des vies
+    comp2D.setColor(Color.black);
+    comp2D.drawString("Vies : " + vies, 10, 20);
   }
 
   // Méthodes de l'interface MouseMotionListener
