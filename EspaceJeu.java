@@ -20,6 +20,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
   private final int SIMPLE=0;
   private final int NORME=1;
   private final int RAPIDE=2;
+  private final int DEDOUBLE=3;
   
   // vies
   private int vies;
@@ -31,6 +32,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
   private int delai;
   private Barre barre;
   private Boule boule;
+  private Boule boule2;
   private Mur mur;
 
 
@@ -41,6 +43,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
     barre=new Barre();
     // Création de la boule
     boule=new Boule();
+    boule2=null;
 
     // Délai entre 2 déplacements
     delai=DELAI;
@@ -94,6 +97,10 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
         case ROULE:
           // Déplacement de la boule
           boule.deplace();
+
+          if (boule2 != null) {
+          boule2.deplace();
+          }
           // Rebond sur le bord gauche ?
           if (boule.getX() < boule.getRayon()) {
             boule.chocH();
@@ -286,6 +293,12 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
           // Accélération du traitement
           delai=(int)(DELAI/2);
           break;
+
+          case DEDOUBLE :
+    boule2 = new Boule();
+    boule2.place(boule.getX(), boule.getY());
+    boule2.angleDep(90);
+    break;
       }
     }
 
@@ -305,6 +318,9 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
     barre.dessine(comp2D);
     // Dessin de la boule
     boule.dessine(comp2D);
+    if (boule2 != null) {
+      boule2.dessine(comp2D);
+    }
     // Dessin du mur de brique
     // Au tout départ le mur n'existe pas
     if(mur!=null)
