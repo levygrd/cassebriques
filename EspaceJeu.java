@@ -311,7 +311,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
       mur.dessine(comp2D);
     // Affichage des vies
     comp2D.setColor(Color.black);
-    comp2D.drawString("Vies : " + vies, 10, 20);
+    comp2D.drawString("Vies : " + vies, 10, 170);
   }
 
   // Méthodes de l'interface MouseMotionListener
