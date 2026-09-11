@@ -100,8 +100,41 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
 
           if (boule2 != null) {
           boule2.deplace();
+          if (boule2 != null) {
+    boule2.deplace();
+
+    // Rebond sur les côtés
+    if (boule2.getX() < boule2.getRayon()) {
+        boule2.chocH();
+        boule2.place(boule2.getRayon(), boule2.getY());
+    }
+
+    if (boule2.getX() > getSize().width - boule2.getRayon()) {
+        boule2.chocH();
+        boule2.place(getSize().width - boule2.getRayon(), boule2.getY());
+    }
+
+    // Rebond sur le haut
+    if (boule2.getY() < boule2.getRayon()) {
+        boule2.chocV();
+        boule2.place(boule2.getX(), boule2.getRayon());
+    }
+
+    // Rebond sur la plateforme
+    if (boule2.getY() + boule2.getRayon() >= barre.getY()
+        && boule2.getY() - boule2.getRayon() <= barre.getY() + barre.getHauteur()
+        && boule2.getX() + boule2.getRayon() >= barre.getX() - barre.getMiLargeur()
+        && boule2.getX() - boule2.getRayon() <= barre.getX() + barre.getMiLargeur()) {
+
+        boule2.chocV();
+        boule2.place(
+            boule2.getX(),
+            barre.getY() - boule2.getRayon()
+        );
+    }
+}
           }
-          // Rebond sur le bord gauche ?
+          // Rebond sur le bord gauche 
           if (boule.getX() < boule.getRayon()) {
             boule.chocH();
             boule.place(boule.getRayon(), boule.getY());
