@@ -70,6 +70,11 @@ class Boule {
   public Color getCouleur() {
     return couleur;
   }
+ public void copieMouvement(Boule autre) {
+    this.vitesse = 3;
+    this.depX = (autre.depX > 0) ? 3 : -3;
+    this.depY = (autre.depY > 0) ? 4 : -4;
+}
 
   public void dessine(Graphics2D motif) {
     motif.setColor(couleur);

@@ -21,6 +21,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
   private final int NORME=1;
   private final int RAPIDE=2;
   private final int DEDOUBLE=3;
+  private final int RETRECIT=4;
   
   // vies
   private int vies;
@@ -60,6 +61,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
 
   public void initialiseNiveau() {
       vies = 3;
+      barre.setMiLargeur(25);
 
     // Arrêt du thread action s'il est en cours d'exécution.
     fini=true;
@@ -265,14 +267,45 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
           break;
 
     case SORT :
-        vies--;
-        if (vies > 0) {
-            JOptionPane.showMessageDialog(this, "Balle perdue ! Vies restantes : " + vies, "Casse briques", JOptionPane.INFORMATION_MESSAGE);
+           vies--;
+
+    if (vies > 0) {
+
+        JOptionPane.showMessageDialog(
+            this,
+            "Balle perdue ! Vies restantes : " + vies,
+            "Casse briques",
+            JOptionPane.INFORMATION_MESSAGE
+        );
+
+        phase = ATTEND;
+
+    } else {
+
+        barre.setMiLargeur(25);
+
+        int choix = JOptionPane.showConfirmDialog(
+            getTopLevelAncestor(),
+            "Game Over !\nVoulez-vous relancer la partie ?",
+            "Casse briques",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (choix == JOptionPane.YES_OPTION) {
+
+            vies = 3;
+            boule2 = null;
+            mur.construit();
             phase = ATTEND;
+
         } else {
-            JOptionPane.showMessageDialog(this, "C'est perdu ! Game Over.", "Casse briques", JOptionPane.INFORMATION_MESSAGE);
+
             fini = true;
+
+        }
     }
+
     break;
 
         case GAGNE :
@@ -330,8 +363,11 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
           case DEDOUBLE :
     boule2 = new Boule();
     boule2.place(boule.getX(), boule.getY());
-    boule2.angleDep(90);
+    boule2.copieMouvement(boule);
     break;
+    case RETRECIT :
+    barre.setMiLargeur(15);
+    break;  
       }
     }
 
