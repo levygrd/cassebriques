@@ -20,6 +20,8 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
   private final int SIMPLE=0;
   private final int NORME=1;
   private final int RAPIDE=2;
+  private final int DEDOUBLE=3;
+  private final int RETRECIT=4;
   
   // vies
   private int vies;
@@ -33,8 +35,8 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
   private int delai;
   private Barre barre;
   private Boule boule;
+  private Boule boule2;
   private Mur mur;
-
 
 
   public EspaceJeu() {
@@ -43,6 +45,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
     barre=new Barre();
     // Création de la boule
     boule=new Boule();
+    boule2=null;
 
     // Délai entre 2 déplacements
     delai=DELAI;
@@ -53,12 +56,12 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
     // Gestion des évenement liés à la souris
       addMouseMotionListener(this);
       addMouseListener(this);
-
-
   }
 
   public void initialiseNiveau() {
       vies = 3;
+      barre.setMiLargeur(25);
+      boule2=null;
       niveauActuel = 1;
 
     // Arrêt du thread action s'il est en cours d'exécution.
@@ -97,6 +100,51 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
         case ROULE:
           // Déplacement de la boule
           boule.deplace();
+
+          if (boule2 != null) {
+            boule2.deplace();
+
+            // Rebond sur les côtés
+            if (boule2.getX() < boule2.getRayon()) {
+              boule2.chocH();
+              boule2.place(boule2.getRayon(), boule2.getY());
+            }
+
+            if (boule2.getX() > getSize().width - boule2.getRayon()) {
+              boule2.chocH();
+              boule2.place(getSize().width - boule2.getRayon(), boule2.getY());
+            }
+
+            // Rebond sur le haut
+            if (boule2.getY() < boule2.getRayon()) {
+              boule2.chocV();
+              boule2.place(boule2.getX(), boule2.getRayon());
+            }
+
+            // Rebond sur la plateforme
+            if (boule2.getY() + boule2.getRayon() >= barre.getY()
+                && boule2.getY() - boule2.getRayon() <= barre.getY() + barre.getHauteur()
+                && boule2.getX() + boule2.getRayon() >= barre.getX() - barre.getMiLargeur()
+                && boule2.getX() - boule2.getRayon() <= barre.getX() + barre.getMiLargeur()) {
+
+              boule2.chocV();
+              boule2.place(
+                  boule2.getX(),
+                  barre.getY() - boule2.getRayon()
+              );
+            }
+
+            // Si la deuxième boule sort par le bas
+            if (boule2.getY() > 310 + barre.getHauteur() + boule2.getRayon()) {
+             boule2 = null;
+}
+
+            // Gestion du choc de la deuxième boule avec une brique
+            if (boule2 != null) {
+              gereCollisionBrique(boule2);
+            }
+          }
+
           // Rebond sur le bord gauche ?
           if (boule.getX() < boule.getRayon()) {
             boule.chocH();
@@ -132,11 +180,11 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
                 if (boule.getY() > 310 + barre.getHauteur() - boule.getRayon()) {
                   // Loupé !!
                   phase = SORT;                
-				}
               }
-
             }
+
           }
+        }
 
           // Gestion du choc avec une brique
           // Récupération de la hauteur d'une brique
@@ -237,15 +285,49 @@ if (mur.getNbBriques() == 0) {
           break;
 
     case SORT :
+
         vies--;
+
         if (vies > 0) {
-            JOptionPane.showMessageDialog(this, "Balle perdue ! Vies restantes : " + vies, "Casse briques", JOptionPane.INFORMATION_MESSAGE);
+
+            JOptionPane.showMessageDialog(
+                this,
+                "Balle perdue ! Vies restantes : " + vies,
+                "Casse briques",
+                JOptionPane.INFORMATION_MESSAGE
+            );
+
+            boule2=null;
             phase = ATTEND;
+
         } else {
-            JOptionPane.showMessageDialog(this, "C'est perdu ! Game Over.", "Casse briques", JOptionPane.INFORMATION_MESSAGE);
-            fini = true;
-    }
-    break;
+
+            barre.setMiLargeur(25);
+
+            int choix = JOptionPane.showConfirmDialog(
+                getTopLevelAncestor(),
+                "Game Over !\nVoulez-vous relancer la partie ?",
+                "Casse briques",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (choix == JOptionPane.YES_OPTION) {
+
+                vies = 3;
+                boule2 = null;
+                mur.construit();
+                barre.setMiLargeur(25);
+                phase = ATTEND;
+
+            } else {
+
+                fini = true;
+
+            }
+        }
+
+        break;
 
         case GAGNE :
           JOptionPane.showMessageDialog(this,"Bravo, vous avez gagné !",
@@ -263,9 +345,107 @@ if (mur.getNbBriques() == 0) {
     }
   }
 
+  // Gestion du choc d'une boule avec une brique
+  private void gereCollisionBrique(Boule b) {
+
+    // Récupération de la hauteur d'une brique
+    int hauteur = mur.getHauteurBrique();
+
+    // Récupération de la largeur d'une brique
+    int largeur = mur.getLargeurBrique();
+
+    // Si la boule se trouve dans la zone du mur de briques ...
+    if (b.getY()-b.getRayon()<10*(hauteur+1)) {
+
+      int l1, l2, c1, c2;
+
+      l1=(int)((b.getY()-b.getRayon())/(hauteur+1));
+      l2=(int)((b.getY()+b.getRayon())/(hauteur+1));
+      c1=(int)((b.getX()-b.getRayon())/(largeur+1));
+      c2=(int)((b.getX()+b.getRayon())/(largeur+1));
+
+      // Le rebond dépend des coins (1 ou 2) en contact avec une brique
+      // Coin supérieur gauche ...
+      if (mur.percute(l1,c1)) {
+
+        // et coin supérieur droit
+        if (mur.percute(l1,c2)) {
+          // Choc vertical
+          b.chocV();
+        }
+        else {
+          // et coin inférieur gauche
+          if (mur.percute(l2,c1)) {
+            // Choc horizontal
+            b.chocH();
+          }
+          else {
+            // Double choc
+            b.chocV();
+            b.chocH();
+          }
+        }
+      }
+      else {
+        // Coin supérieur droit ...
+        if (mur.percute(l1,c2)) {
+
+          // et coin inférieur droit
+          if (mur.percute(l2,c2)) {
+            // Choc horizontal
+            b.chocH();
+          }
+          else {
+            // Double choc
+            b.chocV();
+            b.chocH();
+          }
+        }
+        else {
+          // Coin inférieur gauche ...
+          if (mur.percute(l2,c1)) {
+
+            // et coin inférieur droit
+            if (mur.percute(l2,c2)) {
+              // Choc vertical
+              b.chocV();
+            }
+            else {
+              // Double choc
+              b.chocV();
+              b.chocH();
+            }
+          }
+          else {
+            // Coin inférieur droit
+            if (mur.percute(l2,c2)) {
+              // Double choc
+              b.chocV();
+              b.chocH();
+            }
+          }
+        }
+      }
+
+      // Casse effective des brique du mur
+      //(et mise en place des conséquences)
+      modifJeu(mur.casse(l1,c1));
+      modifJeu(mur.casse(l1,c2));
+      modifJeu(mur.casse(l2,c1));
+      modifJeu(mur.casse(l2,c2));
+
+      // Si toutes les briques sont cassées ...
+      if (mur.getNbBriques()==0) {
+        // Le joueur à gagné
+        phase=GAGNE;
+      }
+    }
+  }
+
   void rebondSurBarre(int impact) {
     // Rebond sur la barre
     boule.chocV();
+
     // La barre est divisée en 5 parties. Chaque partie provoque un rebond différent
     // Partie extréme gauche : Augmentation de l'angle de 30 degrés
     if (impact<-(barre.getMiLargeur()*0.6))
@@ -284,43 +464,61 @@ if (mur.getNbBriques() == 0) {
         boule.modifAngle(-15);
 
     // La partie centrale de la barre provoque un rebond normal
+  }
 
+  public void modifJeu(int action) {
+    switch (action) {
+      case NORME :
+        // Retour aux valeurs de base
+        delai=DELAI;
+        break;
+
+      case RAPIDE :
+        // Accélération du traitement
+        delai=(int)(DELAI/2);
+        break;
+
+      case DEDOUBLE :
+        boule2 = new Boule();
+        boule2.place(boule.getX(), boule.getY());
+        boule2.copieMouvement(boule);
+        break;
+
+      case RETRECIT :
+        barre.setMiLargeur(15);
+        break;  
     }
+  }
 
-    public void modifJeu(int action) {
-      switch (action) {
-        case NORME :
-          // Retour aux valeurs de base
-          delai=DELAI;
-          break;
-
-        case RAPIDE :
-          // Accélération du traitement
-          delai=(int)(DELAI/2);
-          break;
-      }
+  void lanceBoule(int angle) {
+    if (phase==ATTEND) {
+      phase=ROULE;
+      boule.angleDep(angle);
     }
-
-    void lanceBoule(int angle) {
-          if (phase==ATTEND) {
-            phase=ROULE;
-            boule.angleDep(angle);
-          }
-    }
+  }
 
   public void paintComponent(Graphics comp) {
     Graphics2D comp2D = (Graphics2D)comp;
+
     // Effacement de l'espace de jeu
     comp2D.setColor(getBackground());
     comp2D.fillRect(0,0,getSize().width,getSize().height);
+
     // Dessin de la barre
     barre.dessine(comp2D);
+
     // Dessin de la boule
     boule.dessine(comp2D);
+
+    if (boule2 != null) {
+      boule2.dessine(comp2D);
+    }
+
     // Dessin du mur de brique
     // Au tout départ le mur n'existe pas
     if(mur!=null)
       mur.dessine(comp2D);
+
     // Affichage des vies
     comp2D.setColor(Color.black);
     comp2D.drawString("Vies : " + vies, 10, 170);
@@ -341,6 +539,7 @@ if (mur.getNbBriques() == 0) {
         // barre centrée sur le pointeur
         barre.setX(evt.getX());
   }
+
   public void mouseDragged(MouseEvent evt) {}
 
   // Méthodes de l'interface MouseListener

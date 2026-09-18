@@ -18,6 +18,12 @@ class Mur {
           case 2 :
             mur[l][c]=new BriqueBouleRapide();
             break;
+            case 3 :
+            mur[l][c]=new BriqueDedouble();
+            break;
+            case 4 :
+    mur[l][c]=new BriqueRetrecit();
+    break;
           default :
             mur[l][c]=new Brique();
         }
