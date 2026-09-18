@@ -25,7 +25,7 @@ class Mur {
                              l*(mur[l][c].getHauteur()+1));
       }
     }
-    nbBriques=200;
+    nbBriques=200;  
   }
 
   public boolean percute(int l, int c) {
