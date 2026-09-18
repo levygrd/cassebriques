@@ -22,8 +22,11 @@ class Mur {
             mur[l][c]=new BriqueDedouble();
             break;
             case 4 :
-    mur[l][c]=new BriqueRetrecit();
-    break;
+            mur[l][c]=new BriqueRetrecit();
+            break;
+            case 5 :
+            mur[l][c]=new BriqueAgrandit();
+            break;
           default :
             mur[l][c]=new Brique();
         }

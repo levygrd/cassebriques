@@ -6,7 +6,7 @@ class BriqueRetrecit extends Brique {
 
     public BriqueRetrecit() {
         super();
-        couleur = Color.orange;
+        couleur = Color.yellow;
     }
 
     public int choc() {

@@ -22,6 +22,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
   private final int RAPIDE=2;
   private final int DEDOUBLE=3;
   private final int RETRECIT=4;
+  private final int AGRANDIT=5;
   
   // vies
   private int vies;
@@ -466,15 +467,13 @@ if (mur.getNbBriques() == 0) {
     // La partie centrale de la barre provoque un rebond normal
   }
 
-  public void modifJeu(int action) {
+ public void modifJeu(int action) {
     switch (action) {
       case NORME :
-        // Retour aux valeurs de base
         delai=DELAI;
         break;
 
       case RAPIDE :
-        // Accélération du traitement
         delai=(int)(DELAI/2);
         break;
 
@@ -486,19 +485,22 @@ if (mur.getNbBriques() == 0) {
 
       case RETRECIT :
         barre.setMiLargeur(15);
-        break;  
+        break;
+
+      case AGRANDIT :
+        barre.setMiLargeur(35);
+        break;
     }
   }
-
   void lanceBoule(int angle) {
     if (phase==ATTEND) {
-      phase=ROULE;
-      boule.angleDep(angle);
+        phase=ROULE;
+        boule.angleDep(angle);
     }
-  }
-
+}
   public void paintComponent(Graphics comp) {
     Graphics2D comp2D = (Graphics2D)comp;
+    
 
     // Effacement de l'espace de jeu
     comp2D.setColor(getBackground());

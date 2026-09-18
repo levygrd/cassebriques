@@ -70,8 +70,9 @@ class Boule {
   public Color getCouleur() {
     return couleur;
   }
- public void copieMouvement(Boule autre) {
-  modifAngle(60);
+public void copieMouvement(Boule autre) {
+  depX = autre.depX;
+  depY = -autre.depY;
 }
 
   public void dessine(Graphics2D motif) {
