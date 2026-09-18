@@ -23,7 +23,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
   
   // vies
   private int vies;
-  // niveaux
+  // niveaux²
   private int niveauActuel;
 
   // Champs d'instance
@@ -229,7 +229,7 @@ if (mur.getNbBriques() == 0) {
         phase = GAGNE;
     } else {
         // Transition vers le niveau suivant
-        mur.construit();
+        mur.construit(niveauActuel);
         phase = ATTEND;
     }
 }
