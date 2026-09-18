@@ -229,7 +229,7 @@ if (mur.getNbBriques() == 0) {
         phase = GAGNE;
     } else {
         // Transition vers le niveau suivant
-        mur.construit(niveauActuel);
+        mur.construit();
         phase = ATTEND;
     }
 }
