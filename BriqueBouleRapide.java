@@ -3,7 +3,7 @@
 import java.awt.Color;
 
  class BriqueBouleRapide extends Brique{
-   private final int RAPIDE=2;
+   private final int RAPIDE=1;
 
   public BriqueBouleRapide() {
     super();
