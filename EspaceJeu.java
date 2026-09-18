@@ -23,6 +23,8 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
   
   // vies
   private int vies;
+  // niveaux²
+  private int niveauActuel;
 
   // Champs d'instance
   private Thread action;
@@ -57,6 +59,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
 
   public void initialiseNiveau() {
       vies = 3;
+      niveauActuel = 1;
 
     // Arrêt du thread action s'il est en cours d'exécution.
     fini=true;
@@ -217,10 +220,19 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
             modifJeu(mur.casse(l2,c2));
 
             // Si toutes les briques sont cassées ...
-            if (mur.getNbBriques()==0) {
-              // Le joueur à gagné
-              phase=GAGNE;
-            }
+            // Si toutes les briques sont cassées ...
+if (mur.getNbBriques() == 0) {
+    niveauActuel++;
+    
+    if (niveauActuel > 3) {
+        // Le joueur a fini tous les niveaux
+        phase = GAGNE;
+    } else {
+        // Transition vers le niveau suivant
+        mur.construit(niveauActuel);
+        phase = ATTEND;
+    }
+}
           }
           break;
 
