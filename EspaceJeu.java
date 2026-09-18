@@ -24,6 +24,9 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
   private final int RETRECIT=4;
   private final int AGRANDIT=5;
   
+  // Niveau de difficulté du jeu
+  private int level;
+
   // vies
   private int vies;
   // niveaux²
@@ -60,6 +63,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
   }
 
   public void initialiseNiveau() {
+      level = 1; // Niveau de difficulté par défaut
       vies = 3;
       barre.setMiLargeur(25);
       boule2=null;
@@ -83,6 +87,13 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
     // Lancement de l'exécution du jeu dans un thread
     action = new Thread(this);
     action.start();
+  }
+
+  public void niveauSuivant() {
+    level++;
+    mur.construit();
+    phase= ATTEND;
+    delai= DELAI;
   }
 
   // Traitement central exécuté avec une périodicité précise
@@ -335,12 +346,14 @@ if (mur.getNbBriques() == 0) {
 
         break;
 
-        case GAGNE :
-          JOptionPane.showMessageDialog(this,"Bravo, vous avez gagné !",
-                         "Casse briques",JOptionPane.INFORMATION_MESSAGE);
-          fini=true;
-          break;
-      }
+     case GAGNE :
+    JOptionPane.showMessageDialog(this, 
+        "Niveau " + level + " terminé ! Passons au niveau " + (level + 1), 
+        "Casse briques", 
+        JOptionPane.INFORMATION_MESSAGE);
+    niveauSuivant();
+    break;
+  }
 
       // on redessine l'espace de jeu
       repaint();
@@ -533,8 +546,9 @@ if (mur.getNbBriques() == 0) {
       mur.dessine(comp2D);
 
     // Affichage des vies
+    // Affichage des informations
     comp2D.setColor(Color.black);
-    comp2D.drawString("Vies : " + vies, 10, 20);
+    comp2D.drawString("Vies : " + vies + " | Niveau : " + level, 10, 20);
   }
 
   // Méthodes de l'interface MouseMotionListener
