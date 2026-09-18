@@ -75,7 +75,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
     if (mur==null) {
       mur=new Mur();
     }
-    mur.construit();
+    mur.construit(niveauActuel);
     // Premiére phase du jeu
     phase= ATTEND;
     delai = DELAI;
@@ -179,8 +179,13 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
               else {
                 // Si la boule touche le fond ...
                 if (boule.getY() > 310 + barre.getHauteur() - boule.getRayon()) {
-                  // Loupé !!
-                  phase = SORT;                
+                    if (boule2 == null) {
+                       phase = SORT;                
+                    } else {
+                        boule = boule2;
+                        boule2 = null;
+                    }
+                }                
               }
             }
 
@@ -278,7 +283,7 @@ if (mur.getNbBriques() == 0) {
         phase = GAGNE;
     } else {
         // Transition vers le niveau suivant
-        mur.construit();
+        mur.construit(niveauActuel);
         phase = ATTEND;
     }
 }
@@ -317,7 +322,7 @@ if (mur.getNbBriques() == 0) {
 
                 vies = 3;
                 boule2 = null;
-                mur.construit();
+                mur.construit(niveauActuel);
                 barre.setMiLargeur(25);
                 phase = ATTEND;
 
@@ -436,9 +441,15 @@ if (mur.getNbBriques() == 0) {
       modifJeu(mur.casse(l2,c2));
 
       // Si toutes les briques sont cassées ...
-      if (mur.getNbBriques()==0) {
-        // Le joueur à gagné
-        phase=GAGNE;
+      if (mur.getNbBriques() == 0) {
+          niveauActuel++;
+          
+          if (niveauActuel > 3) {
+              phase = GAGNE;
+          } else {
+              mur.construit(niveauActuel);
+              phase = ATTEND;
+          }
       }
     }
   }
@@ -523,7 +534,7 @@ if (mur.getNbBriques() == 0) {
 
     // Affichage des vies
     comp2D.setColor(Color.black);
-    comp2D.drawString("Vies : " + vies, 10, 170);
+    comp2D.drawString("Vies : " + vies, 10, 20);
   }
 
   // Méthodes de l'interface MouseMotionListener
