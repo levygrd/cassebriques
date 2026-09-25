@@ -7,11 +7,11 @@ class Mur {
   private int nbBriques;
 
 
- public void construit(int niveau) {
+public void construit(int niveau) {
     nbBriques = 0;
     
-    for(int l=0; l<10; l++) {
-      for(int c=0; c<20; c++) {
+    for (int l = 0; l < 10; l++) {
+      for (int c = 0; c < 20; c++) {
         
         if (niveau == 1) {
             switch ((int)(Math.random()*10)) {
@@ -25,16 +25,26 @@ class Mur {
             nbBriques++;
         } 
         else if (niveau == 2) {
-            // Remplace ceci par ton propre design de niveau 2
-            mur[l][c]=new Brique(); 
+            // Exemple : Un niveau 2 avec aussi du hasard / bonus
+            switch ((int)(Math.random()*8)) {
+              case 1 : mur[l][c]=new BriqueRetourNorme(); break;
+              case 2 : mur[l][c]=new BriqueBouleRapide(); break;
+              case 3 : mur[l][c]=new BriqueAgrandit(); break;
+              default : mur[l][c]=new Brique();
+            }
+            nbBriques++;
+        }
+        else if (niveau == 3) {
+            // Niveau 3...
+            mur[l][c]=new Brique();
             nbBriques++;
         }
         
         mur[l][c].positionne(c*(mur[l][c].getLargeur()+1), l*(mur[l][c].getHauteur()+1));
       }
     }
-    nbBriques=200;  
-  }
+    // NE PAS METTRE nbBriques = 200 ici pour garder la valeur exacte !
+}
 
   public boolean percute(int l, int c) {
 

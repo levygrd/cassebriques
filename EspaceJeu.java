@@ -348,34 +348,34 @@ if (mur.getNbBriques() == 0) {
             }
             break;
 
-        case GAGNE :
-            if (niveauActuel >= 3) {
-                // Pop-up "Victoire totale"
-                JOptionPane.showMessageDialog(
-                    this, 
-                    "<html><h1 style='color: #43A047; text-align: center;'>Félicitations !</h1>" +
-                    "<p style='text-align: center; font-size: 14px;'>Vous avez terminé tous les niveaux.</p></html>", 
-                    "Victoire !", 
-                    JOptionPane.PLAIN_MESSAGE
-                );
-                fini = true;
-            } else {
-                // Pop-up "Niveau suivant"
-                JOptionPane.showMessageDialog(
-                    this, 
-                    "<html><h2 style='color: #1E88E5; text-align: center;'>Niveau " + niveauActuel + " terminé !</h2>" +
-                    "<p style='text-align: center; font-size: 14px;'>Préparez-vous pour le niveau " + (niveauActuel + 1) + "</p></html>", 
-                    "Niveau Complété", 
-                    JOptionPane.PLAIN_MESSAGE
-                );
-                niveauActuel++;
-                boule2 = null;
-                barre.setMiLargeur(25);
-                mur.construit(niveauActuel);
-                phase = ATTEND;
-                delai = DELAI;
-            }
-            break;
+case GAGNE :
+    if (niveauActuel >= 3) {
+        // Pop-up "Victoire totale"
+        JOptionPane.showMessageDialog(
+            this, 
+            "<html><h1 style='color: #43A047; text-align: center;'>Félicitations !</h1>" +
+            "<p style='text-align: center; font-size: 14px;'>Vous avez terminé tous les niveaux.</p></html>", 
+            "Victoire !", 
+            JOptionPane.PLAIN_MESSAGE
+        );
+        fini = true;
+    } else {
+        // Pop-up "Niveau suivant"
+        JOptionPane.showMessageDialog(
+            this, 
+            "<html><h2 style='color: #1E88E5; text-align: center;'>Niveau " + niveauActuel + " terminé !</h2>" +
+            "<p style='text-align: center; font-size: 14px;'>Préparez-vous pour le niveau " + (niveauActuel + 1) + "</p></html>", 
+            "Niveau Complété", 
+            JOptionPane.PLAIN_MESSAGE
+        );
+        niveauActuel++; // L'incrémentation se fait uniquement ICI !
+        boule2 = null;
+        barre.setMiLargeur(25);
+        mur.construit(niveauActuel);
+        phase = ATTEND;
+        delai = DELAI;
+    }
+    break;
 
     }
   }
