@@ -549,7 +549,7 @@ if (mur.getNbBriques() == 0) {
     // Affichage des vies
     // Affichage des informations
     comp2D.setColor(Color.black);
-    comp2D.drawString("Vies : " + vies + " | Niveau : " + level, 10, 20);
+    comp2D.drawString("Vies : " + vies + " | Niveau : " + level, 10, 170);
   }
 
   // Méthodes de l'interface MouseMotionListener
