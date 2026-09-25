@@ -8,7 +8,7 @@ class Mur {
 
 
  public void construit(int niveau) {
-    nbBriques = 0; // Obligatoire, ne remets plus jamais nbBriques=200 à la fin
+    nbBriques = 0;
     
     for(int l=0; l<10; l++) {
       for(int c=0; c<20; c++) {
@@ -33,7 +33,7 @@ class Mur {
         mur[l][c].positionne(c*(mur[l][c].getLargeur()+1), l*(mur[l][c].getHauteur()+1));
       }
     }
-    nbBriques=200;  
+    nbBriques=2;  
   }
 
   public boolean percute(int l, int c) {

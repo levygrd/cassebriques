@@ -1,7 +1,7 @@
 //package cassebriques;
 
-import javax.swing.*;
 import java.awt.event.*;
+import javax.swing.*;
 
 public class CB extends JFrame implements ActionListener{
   // Espace de jeu
@@ -17,7 +17,7 @@ public class CB extends JFrame implements ActionListener{
   public CB() {
       // Paramétrage du cadre
       super("Casse briques");
-      setSize(370,400);
+      setSize(370,450);
 
       // Gestion de la fermeture du cadre
       ExitWindow exit= new ExitWindow();

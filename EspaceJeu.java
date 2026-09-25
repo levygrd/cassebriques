@@ -1,8 +1,8 @@
 //package cassebriques;
 
 import java.awt.*;
-import javax.swing.*;
 import java.awt.event.*;
+import javax.swing.*;
 
 class EspaceJeu extends JPanel implements Runnable, MouseListener,
                                           MouseMotionListener {
@@ -100,6 +100,13 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
   public void run() {
     fini=false;
     while (!fini) {
+      // on redessine l'espace de jeu
+      repaint();
+
+      try {
+        Thread.sleep(delai);
+      } catch (InterruptedException e) {}
+
       // Selon la phase du jeu ...
       switch (phase) {
         // Attente de lancement de la boule
@@ -303,66 +310,75 @@ if (mur.getNbBriques() == 0) {
           
           break;
 
-      case SORT:
-        vies--;
-
-        if (vies > 0) {
-
-            JOptionPane.showMessageDialog(
-                this,
-                "Balle perdue ! Vies restantes : " + vies,
-                "Casse briques",
-                JOptionPane.INFORMATION_MESSAGE
-            );
-
-            boule2=null;
-            phase = ATTEND;
-
-        } else {
-
-            barre.setMiLargeur(25);
-
-            int choix = JOptionPane.showConfirmDialog(
-                getTopLevelAncestor(),
-                "Game Over !\nVoulez-vous relancer la partie ?",
-                "Casse briques",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE
-            );
-
-            if (choix == JOptionPane.YES_OPTION) {
-
-                vies = 3;
+      case SORT :
+            vies--;
+            if (vies > 0) {
+                // Pop-up "Balle perdue" modernisée
+                JOptionPane.showMessageDialog(
+                    this,
+                    "<html><h2 style='color: #E53935; text-align: center; margin-top: 5px;'>Balle perdue !</h2>" +
+                    "<p style='text-align: center; font-size: 14px;'>Vies restantes : <b>" + vies + "</b></p></html>",
+                    "Casse briques",
+                    JOptionPane.PLAIN_MESSAGE
+                );
                 boule2 = null;
-                mur.construit(niveauActuel);
-                barre.setMiLargeur(25);
                 phase = ATTEND;
-
             } else {
+                barre.setMiLargeur(25);
+                // Pop-up "Game Over" modernisée
+                int choix = JOptionPane.showConfirmDialog(
+                    getTopLevelAncestor(),
+                    "<html><h1 style='color: #B71C1C; text-align: center;'>GAME OVER</h1>" +
+                    "<p style='text-align: center; font-size: 14px;'>Voulez-vous relancer une partie ?</p></html>",
+                    "Casse briques",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.PLAIN_MESSAGE
+                );
 
-                fini = true;
-
+                if (choix == JOptionPane.YES_OPTION) {
+                    vies = 3;
+                    niveauActuel = 1;
+                    boule2 = null;
+                    mur.construit(niveauActuel);
+                    barre.setMiLargeur(25);
+                    phase = ATTEND;
+                } else {
+                    fini = true;
+                }
             }
-        }
+            break;
 
-        break;
+        case GAGNE :
+            if (niveauActuel >= 3) {
+                // Pop-up "Victoire totale"
+                JOptionPane.showMessageDialog(
+                    this, 
+                    "<html><h1 style='color: #43A047; text-align: center;'>Félicitations !</h1>" +
+                    "<p style='text-align: center; font-size: 14px;'>Vous avez terminé tous les niveaux.</p></html>", 
+                    "Victoire !", 
+                    JOptionPane.PLAIN_MESSAGE
+                );
+                fini = true;
+            } else {
+                // Pop-up "Niveau suivant"
+                JOptionPane.showMessageDialog(
+                    this, 
+                    "<html><h2 style='color: #1E88E5; text-align: center;'>Niveau " + niveauActuel + " terminé !</h2>" +
+                    "<p style='text-align: center; font-size: 14px;'>Préparez-vous pour le niveau " + (niveauActuel + 1) + "</p></html>", 
+                    "Niveau Complété", 
+                    JOptionPane.PLAIN_MESSAGE
+                );
+                niveauActuel++;
+                boule2 = null;
+                barre.setMiLargeur(25);
+                mur.construit(niveauActuel);
+                phase = ATTEND;
+                delai = DELAI;
+            }
+            break;
 
-     case GAGNE :
-    JOptionPane.showMessageDialog(this, 
-        "Niveau " + level + " terminé ! Passons au niveau " + (level + 1), 
-        "Casse briques", 
-        JOptionPane.INFORMATION_MESSAGE);
-    niveauSuivant();
-    break;
-  }
-
-      // on redessine l'espace de jeu
-      repaint();
-
-      try {
-        Thread.sleep(delai);
-      } catch (InterruptedException e) {}
     }
+  }
   }
 
   // Gestion du choc d'une boule avec une brique
@@ -526,30 +542,38 @@ if (mur.getNbBriques() == 0) {
   public void paintComponent(Graphics comp) {
     Graphics2D comp2D = (Graphics2D)comp;
     
+    // 1. Lisse les pixels pour rendre la balle et le texte beaucoup plus nets et beaux
+    comp2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-    // Effacement de l'espace de jeu
+    // 2. Fond de base
     comp2D.setColor(getBackground());
     comp2D.fillRect(0,0,getSize().width,getSize().height);
 
-    // Dessin de la barre
+    // 3. Dessin du jeu classique
     barre.dessine(comp2D);
-
-    // Dessin de la boule
     boule.dessine(comp2D);
-
     if (boule2 != null) {
       boule2.dessine(comp2D);
     }
-
-    // Dessin du mur de brique
-    // Au tout départ le mur n'existe pas
-    if(mur!=null)
+    if (mur != null) {
       mur.dessine(comp2D);
+    }
 
-    // Affichage des vies
-    // Affichage des informations
-    comp2D.setColor(Color.black);
-    comp2D.drawString("Vies : " + vies + " | Niveau : " + level, 10, 170);
+    // 4. Affichage des infos (placé tout en bas à Y=360 pour ne rien gêner)
+    comp2D.setFont(new Font("Arial", Font.BOLD, 14));
+    comp2D.setColor(Color.BLACK);
+    
+    // Niveau en bas à gauche
+    comp2D.drawString("Niveau : " + niveauActuel, 15, 360);
+    
+    // Texte "Vies :" un peu plus loin
+    comp2D.drawString("Vies : ", 120, 360);
+
+    // Dessin des petites pastilles rouges pour les vies
+    comp2D.setColor(Color.RED);
+    for (int i = 0; i < vies; i++) {
+        comp2D.fillOval(165 + (i * 15), 350, 10, 10);
+    }
   }
 
   // Méthodes de l'interface MouseMotionListener
