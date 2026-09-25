@@ -113,6 +113,12 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
     action.start();
   }
 
+  public void niveauSuivant() {
+    level++;
+    mur.construit();
+    phase= ATTEND;
+    delai= DELAI;
+  }
 
   // Traitement central exécuté avec une périodicité précise
   public void run() {
@@ -214,40 +220,122 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
               }
 
               else {
-
-                // La boule sort par le bas
-                if (
-                    b.getY()
-                    > 310 + barre.getHauteur() - b.getRayon()
-                ) {
-
-                  // Suppression de cette boule
-                  boules.remove(i);
-
-                  // Si toutes les boules sont sorties
-                  if (boules.isEmpty()) {
-                    phase = SORT;
-                  }
-
-                  continue;
-                }
+                // Si la boule touche le fond ...
+                if (boule.getY() > 310 + barre.getHauteur() - boule.getRayon()) {
+                    if (boule2 == null) {
+                       phase = SORT;                
+                    } else {
+                        boule = boule2;
+                        boule2 = null;
+                    }
+                }                
               }
             }
 
-
-            // Collision avec une brique
-            gereCollisionBrique(b);
           }
+        }
 
+          // Gestion du choc avec une brique
+          // Récupération de la hauteur d'une brique
+          int hauteur = mur.getHauteurBrique();
+          // Récupération de la largeur d'une brique
+          int largeur = mur.getLargeurBrique();
+          // Si la boule se trouve dans la zone du mur de briques ...
+          if (boule.getY()-boule.getRayon()<10*(hauteur+1)){
+            // l1, c1 sont les coordonnées du coin supérieur gauche de la boule
+            // l2, c2 sont les coordonnées du coin inférieur droit de la boule
+            int l1, l2, c1, c2;
+            l1=(int)((boule.getY()-boule.getRayon())/(hauteur+1));
+            l2=(int)((boule.getY()+boule.getRayon())/(hauteur+1));
+            c1=(int)((boule.getX()-boule.getRayon())/(largeur+1));
+            c2=(int)((boule.getX()+boule.getRayon())/(largeur+1));
+
+            // Le rebond dépend des coins (1 ou 2) en contact avec une brique
+            // Coin supérieur gauche ...
+            if (mur.percute(l1,c1)) {
+              // et coin supérieur droit
+              if (mur.percute(l1,c2)) {
+                // Choc vertical
+                boule.chocV();
+              }
+              else {
+                // et coin inférieur gauche
+                if (mur.percute(l2,c1)) {
+                  // Choc horizontal
+                  boule.chocH();
+                }
+                else {
+                  // Double choc
+                  boule.chocV();
+                  boule.chocH();
+                }
+              }
+            }
+            else {
+              // Coin supérieur droit ...
+              if (mur.percute(l1,c2)) {
+                // et coin inférieur droit
+                if (mur.percute(l2,c2)) {
+                  // Choc horizontal
+                  boule.chocH();
+                }
+                else {
+                  // Double choc
+                  boule.chocV();
+                  boule.chocH();
+                }
+              }
+              else {
+                // Coin inférieur gauche ...
+                if (mur.percute(l2,c1)) {
+                  // et coin inférieur droit
+                  if (mur.percute(l2,c2)) {
+                    // Choc vertical
+                    boule.chocV();
+                  }
+                  else {
+                    // Double choc
+                    boule.chocV();
+                    boule.chocH();
+                  }
+                }
+                else {
+                  // Coin inférieur droit
+                  if (mur.percute(l2,c2)) {
+                    // Double choc
+                    boule.chocV();
+                    boule.chocH();
+                  }
+                }
+              }
+            }
+            // Casse effective des brique du mur
+            //(et mise en place des conséquences)
+            modifJeu(mur.casse(l1,c1));
+            modifJeu(mur.casse(l1,c2));
+            modifJeu(mur.casse(l2,c1));
+            modifJeu(mur.casse(l2,c2));
+
+            // Si toutes les briques sont cassées ...
+            // Si toutes les briques sont cassées ...
+if (mur.getNbBriques() == 0) {
+    niveauActuel++;
+    
+    if (niveauActuel > 3) {
+        // Le joueur a fini tous les niveaux
+        phase = GAGNE;
+    } else {
+        // Transition vers le niveau suivant
+        mur.construit(niveauActuel);
+        phase = ATTEND;
+    }
+}
+          }
           break;
 
+    case SORT :
 
-        // =================
-        // BOULES SORTIES
-        // =================
-        case SORT:
-
-          vies--;
+        vies--;
 
           if (vies > 0) {
 
@@ -650,12 +738,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
 
     // Affichage des vies
     comp2D.setColor(Color.black);
-
-    comp2D.drawString(
-        "Vies : " + vies,
-        10,
-        170
-    );
+    comp2D.drawString("Vies : " + vies + " | Niveau : " + level, 10, 20);
   }
 
 
