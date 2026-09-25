@@ -91,7 +91,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
 
   public void niveauSuivant() {
     level++;
-    mur.construit();
+    mur.construit(level);
     phase= ATTEND;
     delai= DELAI;
   }
@@ -201,7 +201,6 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
             }
 
           }
-        }
 
           // Gestion du choc avec une brique
           // Récupération de la hauteur d'une brique
@@ -298,11 +297,13 @@ if (mur.getNbBriques() == 0) {
         phase = ATTEND;
     }
 }
-          }
+
+        // Fin de la gestion des collisions avec les briques
+        }
+          
           break;
 
-    case SORT :
-
+      case SORT:
         vies--;
 
         if (vies > 0) {
