@@ -33,11 +33,7 @@ class Mur {
         mur[l][c].positionne(c*(mur[l][c].getLargeur()+1), l*(mur[l][c].getHauteur()+1));
       }
     }
-<<<<<<< HEAD
-    nbBriques=2;  
-=======
-    nbBriques=200;
->>>>>>> 4c8ce49abdec2901971a8e03e01fdc04abfd4086
+    nbBriques=200;  
   }
 
   public boolean percute(int l, int c) {
