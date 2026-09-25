@@ -7,31 +7,30 @@ class Mur {
   private int nbBriques;
 
 
-  public void construit() {
-    // Affectaion aléatoire de briques au mur
+ public void construit(int niveau) {
+    nbBriques = 0; // Obligatoire, ne remets plus jamais nbBriques=200 à la fin
+    
     for(int l=0; l<10; l++) {
       for(int c=0; c<20; c++) {
-        switch ((int)(Math.random()*10)) {
-          case 1 :
-            mur[l][c]=new BriqueRetourNorme();
-            break;
-          case 2 :
-            mur[l][c]=new BriqueBouleRapide();
-            break;
-            case 3 :
-            mur[l][c]=new BriqueDedouble();
-            break;
-            case 4 :
-            mur[l][c]=new BriqueRetrecit();
-            break;
-            case 5 :
-            mur[l][c]=new BriqueAgrandit();
-            break;
-          default :
-            mur[l][c]=new Brique();
+        
+        if (niveau == 1) {
+            switch ((int)(Math.random()*10)) {
+              case 1 : mur[l][c]=new BriqueRetourNorme(); break;
+              case 2 : mur[l][c]=new BriqueBouleRapide(); break;
+              case 3 : mur[l][c]=new BriqueDedouble(); break;
+              case 4 : mur[l][c]=new BriqueRetrecit(); break;
+              case 5 : mur[l][c]=new BriqueAgrandit(); break;
+              default : mur[l][c]=new Brique();
+            }
+            nbBriques++;
+        } 
+        else if (niveau == 2) {
+            // Remplace ceci par ton propre design de niveau 2
+            mur[l][c]=new Brique(); 
+            nbBriques++;
         }
-        mur[l][c].positionne(c*(mur[l][c].getLargeur()+1),
-                             l*(mur[l][c].getHauteur()+1));
+        
+        mur[l][c].positionne(c*(mur[l][c].getLargeur()+1), l*(mur[l][c].getHauteur()+1));
       }
     }
     nbBriques=200;

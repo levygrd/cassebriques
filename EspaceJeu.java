@@ -1,5 +1,4 @@
-//package cassebriques;
-
+package cassebriques;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
@@ -102,6 +101,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
       mur = new Mur();
     }
 
+    // Construction du mur
     mur.construit();
 
     // Première phase du jeu
@@ -123,13 +123,14 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
 
       switch (phase) {
 
-        // =========================
+        // =================
         // ATTENTE
-        // =========================
+        // =================
         case ATTEND:
 
           // Placement de toutes les boules sur la barre
           for (Boule b : boules) {
+
             b.place(
                 barre.getX(),
                 barre.getY() - b.getRayon()
@@ -139,9 +140,9 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
           break;
 
 
-        // =========================
+        // =================
         // LA BOULE ROULE
-        // =========================
+        // =================
         case ROULE:
 
           // Parcours de toutes les boules
@@ -153,9 +154,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
             b.deplace();
 
 
-            // -------------------------
             // Rebond bord gauche
-            // -------------------------
             if (b.getX() < b.getRayon()) {
 
               b.chocH();
@@ -167,9 +166,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
             }
 
 
-            // -------------------------
             // Rebond bord droit
-            // -------------------------
             if (b.getX() > getSize().width - b.getRayon()) {
 
               b.chocH();
@@ -181,9 +178,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
             }
 
 
-            // -------------------------
             // Rebond sur le haut
-            // -------------------------
             if (b.getY() < b.getRayon()) {
 
               b.chocV();
@@ -195,9 +190,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
             }
 
 
-            // -------------------------
             // Rebond sur la barre
-            // -------------------------
             if (b.getY() > 310 - b.getRayon()) {
 
               if (
@@ -242,18 +235,16 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
             }
 
 
-            // -------------------------
             // Collision avec une brique
-            // -------------------------
             gereCollisionBrique(b);
           }
 
           break;
 
 
-        // =========================
+        // =================
         // BOULES SORTIES
-        // =========================
+        // =================
         case SORT:
 
           vies--;
@@ -300,12 +291,17 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
               boules.clear();
               boules.add(boule);
 
-              // Nouveau mur
-              mur.construit();
-
+              // Nouveau niveau
               niveauActuel = 1;
 
+              // Nouveau délai
               delai = DELAI;
+
+              // Nouveau mur
+              if (mur == null) {
+                mur = new Mur();
+              }
+              mur.construit();
 
               phase = ATTEND;
             }
@@ -319,9 +315,9 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
           break;
 
 
-        // =========================
+        // =================
         // GAGNE
-        // =========================
+        // =================
         case GAGNE:
 
           JOptionPane.showMessageDialog(
@@ -351,14 +347,12 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
   }
 
 
-  // =========================================================
+  // =========================
   // COLLISION AVEC UNE BRIQUE
-  // =========================================================
-
+  // =========================
   private void gereCollisionBrique(Boule b) {
 
     int hauteur = mur.getHauteurBrique();
-
     int largeur = mur.getLargeurBrique();
 
 
@@ -480,9 +474,8 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
 
         else {
 
+          // Construction du nouveau mur
           mur.construit();
-
-          // On garde les boules
           phase = ATTEND;
         }
       }
@@ -490,10 +483,9 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
   }
 
 
-  // =========================================================
+  // =====================
   // REBOND SUR LA BARRE
-  // =========================================================
-
+  // =====================
   void rebondSurBarre(Boule b, int impact) {
 
     // Rebond vertical
@@ -533,10 +525,9 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
   }
 
 
-  // =========================================================
+  // =====================
   // MODIFICATION DU JEU
-  // =========================================================
-
+  // =====================
   public void modifJeu(int action) {
 
     switch (action) {
@@ -559,11 +550,13 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
 
       case DEDOUBLE:
 
-        // Maximum 10 boules
+        // Maximum 5 boules
         if (boules.size() < MAX_BOULES) {
 
           // On prend la dernière boule existante
-          Boule source = boules.get(boules.size() - 1);
+          Boule source = boules.get(
+              boules.size() - 1
+          );
 
           // Création d'une nouvelle boule
           Boule nouvelleBoule = new Boule();
@@ -577,7 +570,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
           // Même mouvement
           nouvelleBoule.copieMouvement(source);
 
-          // Ajout à la collection
+          // Ajout de la nouvelle boule
           boules.add(nouvelleBoule);
         }
 
@@ -600,25 +593,27 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
   }
 
 
-  // =========================================================
+  // =========================
   // LANCER LA BOULE
-  // =========================================================
-
+  // =========================
   private void lanceBoule(int angle) {
 
     if (phase == ATTEND) {
 
-      boule.angleDep(angle);
+      // Lance toutes les boules
+      for (Boule b : boules) {
+
+        b.angleDep(angle);
+      }
 
       phase = ROULE;
     }
   }
 
 
-  // =========================================================
+  // ==========================
   // AFFICHAGE
-  // =========================================================
-
+  // ==========================
   public void paintComponent(Graphics comp) {
 
     Graphics2D comp2D = (Graphics2D) comp;
@@ -667,7 +662,6 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
   // =========================================================
   // SOURIS
   // =========================================================
-
   public void mouseMoved(MouseEvent evt) {
 
     // Trop à gauche
@@ -694,8 +688,10 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
     }
   }
 
+
   public void mouseDragged(MouseEvent evt) {
   }
+
 
   public void mouseClicked(MouseEvent evt) {
 
@@ -703,13 +699,20 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener,
         (int) (Math.random() * 120) + 30
     );
   }
+
+
   public void mouseEntered(MouseEvent evt) {
   }
+
+
   public void mouseExited(MouseEvent evt) {
   }
 
+
   public void mousePressed(MouseEvent evt) {
   }
+
+
   public void mouseReleased(MouseEvent evt) {
   }
 }
