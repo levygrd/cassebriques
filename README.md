@@ -2,9 +2,11 @@
 
 ## Répartition des Tâches et Fonctionnalités
 
-### **Lucas : Mécaniques de Briques Spéciales et Relance**
+### **Lucas : Mécaniques de Briques Spéciales, Physique et Relance**
 * **Briques d'altération de plateforme** : Implémentation d'effets dynamiques modifiant la taille de la plateforme de jeu lors des collisions[cite: 3]. La destruction d'une brique Jaune agit comme un malus en rétrécissant la plateforme, tandis que la brique Verte offre un bonus en l'agrandissant pour faciliter la récupération de la balle[cite: 3].
 * **Brique de Dédoublement (Multiball)** : Création d'une mécanique spéciale liée aux briques Roses[cite: 3]. Une fois touchées, ces briques dédoublent la boule en jeu, permettant de gérer jusqu'à 5 boules simultanément sur l'écran pour accélérer la destruction du mur[cite: 3].
+* **Brique Résistante** : Création d'une classe de brique nécessitant 3 chocs pour être détruite, incluant un changement de couleur progressif (Noir -> Gris foncé -> Gris clair) à chaque impact pour indiquer son état de dégradation.
+* **Refonte de la physique et correction de bugs** : Amélioration du moteur de collisions général et résolution des bugs liés à la physique des rebonds de la balle.
 * **Menu de relance** : Développement d'un menu de fin interactif qui propose directement au joueur de relancer la partie après une défaite, évitant ainsi de devoir redémarrer l'application[cite: 3].
 
 ### **Lévy : Moteur Physique, Interface et Bonus**
