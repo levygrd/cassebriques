@@ -3,7 +3,7 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 
-class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionListener {
+class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionListener, KeyListener {
 
   private final int DELAI=16;
 
@@ -12,6 +12,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
   private final int ROULE=2;
   private final int SORT=3;
   private final int GAGNE=4;
+  private final int PAUSE=6; 
 
   private final int SIMPLE=0;
   private final int NORME=1;
@@ -22,11 +23,12 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
   
   private int vies;
   private int niveauActuel;
-  private int score; // Ajout de la variable de score
+  private int score;
 
   private Thread action;
   private boolean fini;
   private int phase;
+  private int phaseAvantPause; 
   private int delai;
   private Barre barre;
   private Boule boule;
@@ -45,11 +47,13 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
 
     addMouseMotionListener(this);
     addMouseListener(this);
+    addKeyListener(this); 
+    setFocusable(true);   
   }
 
   public void initialiseNiveau() {
     vies = 3;
-    score = 0; // Remise à zéro du score à chaque nouvelle partie
+    score = 0;
     barre.setMiLargeur(25);
     niveauActuel = 1;
     listeBonus.clear(); 
@@ -66,6 +70,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
     mur.construit(niveauActuel);
     phase= ATTEND;
     delai = DELAI;
+    requestFocusInWindow(); 
 
     action = new Thread(this);
     action.start();
@@ -79,10 +84,12 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
           boule.place(barre.getX(), barre.getY() - boule.getRayon());
           break;
 
+        case PAUSE:
+          break;
+
         case ROULE:
           boule.deplace();
 
-          // ---- 1. GESTION DES BONUS PHYSIQUES QUI TOMBENT ----
           for (int i = 0; i < listeBonus.size(); i++) {
               Bonus bonus = listeBonus.get(i);
               bonus.deplace();
@@ -93,7 +100,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
                   bonus.getX() - bonus.getRayon() <= barre.getX() + barre.getMiLargeur()) {
                   
                   modifJeu(bonus.getType()); 
-                  score += 500; // 500 points supplémentaires en attrapant le bonus !
+                  score += 500;
                   listeBonus.remove(i);
                   i--; 
               } 
@@ -103,7 +110,6 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
               }
           }
 
-          // ---- 2. GESTION DES BALLES SUPPLÉMENTAIRES ----
           for (int i = 0; i < boulesExtra.size(); i++) {
               Boule bEx = boulesExtra.get(i);
               bEx.deplace();
@@ -130,7 +136,6 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
               gereCollisionBrique(bEx);
           }
 
-          // ---- 3. GESTION DE LA BALLE PRINCIPALE ----
           if (boule.getX() < boule.getRayon()) { boule.chocH(); boule.place(boule.getRayon(), boule.getY()); }
           else {
             if (boule.getX() > getSize().width - boule.getRayon()) { boule.chocH(); boule.place(getSize().width - boule.getRayon(), boule.getY()); }
@@ -255,9 +260,8 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
       int briquesAvant = mur.getNbBriques();
       int action = mur.casse(l, c); 
 
-      // Si le nombre de briques a diminué, c'est que la brique vient d'être détruite
       if (briquesAvant > mur.getNbBriques()) {
-          score += 100; // 100 points par brique détruite !
+          score += 100;
 
           if (action == 6) {
               int typeBonus = (int)(Math.random() * 5) + 1; 
@@ -349,11 +353,13 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
     g.setColor(Color.WHITE);
     g.setFont(new Font("Arial", Font.BOLD, 32));
     g.drawString("CASSE BRIQUES", 45, 120);
+    
     g.setColor(new Color(67, 160, 71));
     g.fillRect(110, 200, 150, 40);
     g.setColor(Color.WHITE);
     g.setFont(new Font("Arial", Font.BOLD, 16));
     g.drawString("JOUER", 155, 226);
+    
     g.setColor(new Color(229, 57, 53));
     g.fillRect(110, 260, 150, 40);
     g.setColor(Color.WHITE);
@@ -383,7 +389,6 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
             b.dessine(comp2D);
         }
 
-        // --- HUD AVEC LE SCORE ---
         comp2D.setFont(new Font("Arial", Font.BOLD, 14));
         comp2D.setColor(Color.BLACK);
         comp2D.drawString("Niveau : " + niveauActuel, 15, 360);
@@ -393,24 +398,64 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
         for (int i = 0; i < vies; i++) {
             comp2D.fillOval(265 + (i * 15), 350, 10, 10);
         }
+
+        if (phase == PAUSE) {
+            comp2D.setColor(new Color(0, 0, 0, 150)); 
+            comp2D.fillRect(0, 0, getSize().width, getSize().height);
+            
+            comp2D.setColor(Color.WHITE);
+            comp2D.setFont(new Font("Arial", Font.BOLD, 40));
+            comp2D.drawString("PAUSE", 115, 140);
+            
+            // Bouton REPRENDRE
+            comp2D.setColor(new Color(67, 160, 71));
+            comp2D.fillRect(110, 200, 150, 40);
+            comp2D.setColor(Color.WHITE);
+            comp2D.setFont(new Font("Arial", Font.BOLD, 16));
+            comp2D.drawString("REPRENDRE", 132, 226);
+            
+            // Bouton QUITTER
+            comp2D.setColor(new Color(229, 57, 53));
+            comp2D.fillRect(110, 260, 150, 40);
+            comp2D.setColor(Color.WHITE);
+            comp2D.drawString("QUITTER", 146, 286);
+        }
     }
   }
 
   public void mouseMoved(MouseEvent evt) {
-    if (evt.getX()<barre.getMiLargeur()) barre.setX(barre.getMiLargeur());
-    else if (evt.getX()>getSize().width-barre.getMiLargeur()) barre.setX(getSize().width-barre.getMiLargeur());
-    else barre.setX(evt.getX());
+    if (phase != PAUSE) { 
+        if (evt.getX()<barre.getMiLargeur()) barre.setX(barre.getMiLargeur());
+        else if (evt.getX()>getSize().width-barre.getMiLargeur()) barre.setX(getSize().width-barre.getMiLargeur());
+        else barre.setX(evt.getX());
+    }
   }
 
   public void mouseDragged(MouseEvent evt) {}
 
   public void mouseClicked(MouseEvent evt) {
+    requestFocusInWindow(); 
+
+    int mx = evt.getX();
+    int my = evt.getY();
+
     if (phase == MENU) {
-        int mx = evt.getX();
-        int my = evt.getY();
         if (mx >= 110 && mx <= 260 && my >= 200 && my <= 240) initialiseNiveau(); 
         if (mx >= 110 && mx <= 260 && my >= 260 && my <= 300) System.exit(0);
     } 
+    else if (phase == PAUSE) {
+        // Clic sur REPRENDRE
+        if (mx >= 110 && mx <= 260 && my >= 200 && my <= 240) {
+            phase = phaseAvantPause;
+        }
+        // Clic sur QUITTER (Retour au menu)
+        if (mx >= 110 && mx <= 260 && my >= 260 && my <= 300) {
+            boulesExtra.clear();
+            listeBonus.clear();
+            phase = MENU;
+            fini = true; 
+        }
+    }
     else if (phase == ATTEND) {
         lanceBoule((int)(Math.random()*120)+30);
     }
@@ -420,4 +465,18 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
   public void mouseExited(MouseEvent evt) {}
   public void mousePressed(MouseEvent evt) {}
   public void mouseReleased(MouseEvent evt) {}
+
+  public void keyPressed(KeyEvent evt) {
+    if (evt.getKeyCode() == KeyEvent.VK_P || evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
+        if (phase == ROULE || phase == ATTEND) {
+            phaseAvantPause = phase; 
+            phase = PAUSE; 
+        } else if (phase == PAUSE) {
+            phase = phaseAvantPause; 
+        }
+    }
+  }
+
+  public void keyReleased(KeyEvent evt) {}
+  public void keyTyped(KeyEvent evt) {}
 }
