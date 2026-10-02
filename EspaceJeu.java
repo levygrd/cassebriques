@@ -195,7 +195,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
             casserBrique(l2, c1);
             casserBrique(l2, c2);
 
-            if (mur.getNbBriques() == 0) { phase = GAGNE; }
+            if (mur.getNbBriques() <= 0) { phase = GAGNE; }
           }
           break;
 
@@ -314,7 +314,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
       casserBrique(l2, c1);
       casserBrique(l2, c2);
 
-      if (mur.getNbBriques() == 0) { phase = GAGNE; }
+      if (mur.getNbBriques() <= 0) { phase = GAGNE; }
     }
   }
 

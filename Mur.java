@@ -3,7 +3,7 @@ import java.awt.Graphics2D;
 class Mur {
 
   // Code de Johan : Mode test pour finir les niveaux rapidement après 5 briques
-  private static final boolean MODE_TEST = false;
+  private static final boolean MODE_TEST = true;
   private static final int BRIQUES_TEST = 5;
 
   private Brique[][] mur=new Brique[10][20];
