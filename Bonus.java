@@ -8,16 +8,15 @@ public class Bonus {
         this.x = x;
         this.y = y;
         this.type = type;
-        this.rayon = 6; // Taille du bonus
-        this.vitesse = 3; // Vitesse de chute
+        this.rayon = 6; 
+        this.vitesse = 3; 
         
-        // On attribue une couleur selon le type de pouvoir
         switch (type) {
-            case 1: couleur = Color.pink; break;    // Retour norme
-            case 2: couleur = Color.yellow; break;  // Balle rapide
-            case 3: couleur = Color.red; break;     // Dédoublement
-            case 4: couleur = Color.orange; break;  // Rétrécit
-            case 5: couleur = Color.green; break;   // Agrandit
+            case 1: couleur = Color.pink; break;
+            case 2: couleur = Color.yellow; break;
+            case 3: couleur = Color.magenta; break;
+            case 4: couleur = Color.orange; break;
+            case 5: couleur = Color.cyan; break;
             default: couleur = Color.white;
         }
     }
@@ -28,7 +27,6 @@ public class Bonus {
 
     public void dessine(Graphics2D motif) {
         motif.setColor(couleur);
-        // Dessine un petit carré pour représenter le bonus qui tombe
         motif.fillRect(x - rayon, y - rayon, rayon * 2, rayon * 2);
     }
 

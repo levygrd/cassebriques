@@ -1,81 +1,51 @@
-//package cassebriques;
-
 import java.awt.Graphics2D;
 
 class Mur {
   private Brique[][] mur=new Brique[10][20];
   private int nbBriques;
 
-
-public void construit(int niveau) {
-    nbBriques = 0;
+  public void construit(int niveau) {
+    nbBriques = 0; 
     
-    for (int l = 0; l < 10; l++) {
-      for (int c = 0; c < 20; c++) {
+    for(int l=0; l<10; l++) {
+      for(int c=0; c<20; c++) {
         
         if (niveau == 1) {
-            switch ((int)(Math.random()*10)) {
+            // Génération avec toutes les briques de tes collègues + la nouvelle brique Bonus
+            switch ((int)(Math.random()*15)) { // *15 pour rendre les briques spéciales un peu plus rares
               case 1 : mur[l][c]=new BriqueRetourNorme(); break;
               case 2 : mur[l][c]=new BriqueBouleRapide(); break;
               case 3 : mur[l][c]=new BriqueDedouble(); break;
               case 4 : mur[l][c]=new BriqueRetrecit(); break;
               case 5 : mur[l][c]=new BriqueAgrandit(); break;
+              case 6 : mur[l][c]=new BriqueBonus(); break; // <-- LA NOUVELLE BRIQUE CYAN
               default : mur[l][c]=new Brique();
             }
             nbBriques++;
         } 
-        else if (niveau == 2) {
-            // Exemple : Un niveau 2 avec aussi du hasard / bonus
-            switch ((int)(Math.random()*8)) {
-              case 1 : mur[l][c]=new BriqueRetourNorme(); break;
-              case 2 : mur[l][c]=new BriqueBouleRapide(); break;
-              case 3 : mur[l][c]=new BriqueAgrandit(); break;
-              default : mur[l][c]=new Brique();
-            }
-            nbBriques++;
-        }
-        else if (niveau == 3) {
-            // Niveau 3...
-            mur[l][c]=new Brique();
+        else {
+            // Niveau 2 par défaut (que des briques vertes pour l'instant)
+            mur[l][c]=new Brique(); 
             nbBriques++;
         }
         
         mur[l][c].positionne(c*(mur[l][c].getLargeur()+1), l*(mur[l][c].getHauteur()+1));
       }
     }
-    // NE PAS METTRE nbBriques = 200 ici pour garder la valeur exacte !
-}
+  }
 
   public boolean percute(int l, int c) {
-
-    // Coordonnées hors du mur ?
-    if (l<0 || l > 9 || c<0 || c>19) {
-      // Le mur n'a pas été percuté
-      return false;
-    }
-    else
-      // Si la brique à ces cordonnées était déjà détruite ...
-      if (mur[l][c].isDetruite()) {
-        // Le mur n'a pas été percuté
-        return false;
-      }
-      else {
-        // Le mur est percuté
-        return true;
-      }
+    if (l<0 || l > 9 || c<0 || c>19) { return false; }
+    else if (mur[l][c].isDetruite()) { return false; }
+    else { return true; }
   }
 
   public int casse(int l, int c) {
     int consequence=0;
-    // Si les coordonnées sont dans le mur (pas de coordonnées hors tableau)
     if (l>=0 && l <10 && c>=0 && c<20) {
-      // Si la brique à ces coordonnées n'était pas détruite ...
       if (!mur[l][c].isDetruite()) {
-        // La brique reçoit un choc (qui peut avoir une conséquence)
         consequence=mur[l][c].choc();
-        // Si le choc a détruit la brique ...
         if (mur[l][c].isDetruite()) {
-          // Une brique en moins, une !
           nbBriques--;
         }
       }
@@ -83,28 +53,15 @@ public void construit(int niveau) {
     return consequence;
   }
 
-  public int getNbBriques() {
-    return nbBriques;
-}
-
-  public int getLargeurBrique() {
-    return mur[0][0].getLargeur();
-  }
-
-  public int getHauteurBrique() {
-    return mur[0][0].getHauteur();
-  }
+  public int getNbBriques() { return nbBriques; }
+  public int getLargeurBrique() { return mur[0][0].getLargeur(); }
+  public int getHauteurBrique() { return mur[0][0].getHauteur(); }
 
   public void dessine(Graphics2D support) {
-    // Dessin du mur de brique
     for(int l=0;l<10;l++) {
       for (int c=0; c<20; c++) {
-        // Si la brique n'est pas détruite ...
-        if (!mur[l][c].isDetruite())
-          // On la dessine
-          mur[l][c].dessine(support);
+        if (!mur[l][c].isDetruite()) mur[l][c].dessine(support);
       }
     }
   }
-
 }
