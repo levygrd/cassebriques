@@ -11,20 +11,20 @@ class Mur {
       for(int c=0; c<20; c++) {
         
         if (niveau == 1) {
-            // Génération avec toutes les briques de tes collègues + la nouvelle brique Bonus
-            switch ((int)(Math.random()*15)) { // *15 pour rendre les briques spéciales un peu plus rares
+            // Random sur 20 pour diluer les briques spéciales et résistantes au milieu des normales
+            switch ((int)(Math.random()*20)) { 
               case 1 : mur[l][c]=new BriqueRetourNorme(); break;
               case 2 : mur[l][c]=new BriqueBouleRapide(); break;
               case 3 : mur[l][c]=new BriqueDedouble(); break;
               case 4 : mur[l][c]=new BriqueRetrecit(); break;
               case 5 : mur[l][c]=new BriqueAgrandit(); break;
-              case 6 : mur[l][c]=new BriqueBonus(); break; // <-- LA NOUVELLE BRIQUE CYAN
+              case 6 : mur[l][c]=new BriqueBonus(); break; 
+              case 7 : mur[l][c]=new BriqueResistante(); break; // <-- LA BRIQUE DE LUCAS
               default : mur[l][c]=new Brique();
             }
             nbBriques++;
         } 
         else {
-            // Niveau 2 par défaut (que des briques vertes pour l'instant)
             mur[l][c]=new Brique(); 
             nbBriques++;
         }
@@ -33,6 +33,7 @@ class Mur {
       }
     }
   }
+  
 
   public boolean percute(int l, int c) {
     if (l<0 || l > 9 || c<0 || c>19) { return false; }
