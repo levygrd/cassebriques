@@ -24,6 +24,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
   private int vies;
   private int niveauActuel;
   private int score;
+  private int chronoBonus; // Compteur pour les 30 secondes d'effet
 
   private Thread action;
   private boolean fini;
@@ -54,6 +55,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
   public void initialiseNiveau() {
     vies = 3;
     score = 0;
+    chronoBonus = 0;
     barre.setMiLargeur(25);
     niveauActuel = 1;
     listeBonus.clear(); 
@@ -89,6 +91,14 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
 
         case ROULE:
           boule.deplace();
+
+          // --- GESTION DU CHRONO DES BONUS TEMPORAIRES (30 SECONDES) ---
+          if (chronoBonus > 0) {
+              chronoBonus--;
+              if (chronoBonus <= 0) {
+                  modifJeu(NORME); // Annule l'effet une fois à 0
+              }
+          }
 
           for (int i = 0; i < listeBonus.size(); i++) {
               Bonus bonus = listeBonus.get(i);
@@ -209,6 +219,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
                     "Casse briques", JOptionPane.PLAIN_MESSAGE);
                 boulesExtra.clear();
                 listeBonus.clear(); 
+                chronoBonus = 0; // Remise à zéro
                 phase = ATTEND;
             } else {
                 JOptionPane.showMessageDialog(this,
@@ -218,6 +229,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
                     "Casse briques", JOptionPane.PLAIN_MESSAGE);
                 barre.setMiLargeur(25);
                 boulesExtra.clear();
+                chronoBonus = 0;
                 phase = MENU;
                 fini = true; 
             }
@@ -241,6 +253,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
                 boulesExtra.clear();
                 listeBonus.clear();
                 barre.setMiLargeur(25);
+                chronoBonus = 0;
                 mur.construit(niveauActuel);
                 phase = ATTEND;
                 delai = DELAI;
@@ -328,18 +341,31 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
 
   public void modifJeu(int action) {
     switch (action) {
-      case NORME : delai=DELAI; barre.setMiLargeur(25); break;
-      case RAPIDE : delai=(int)(DELAI * 0.75); break;
+      case NORME : 
+          delai=DELAI; 
+          barre.setMiLargeur(25); 
+          chronoBonus = 0; 
+          break;
+      case RAPIDE : 
+          delai=(int)(DELAI * 0.75); 
+          chronoBonus = 10000 / DELAI; // 10 secondes
+          break;
       case DEDOUBLE :
-        if (boulesExtra.size() < 4) {
-            Boule nouvelleBoule = new Boule();
-            nouvelleBoule.place(boule.getX(), boule.getY());
-            nouvelleBoule.copieMouvement(boule);
-            boulesExtra.add(nouvelleBoule);
-        }
-        break;
-      case RETRECIT : barre.setMiLargeur(15); break;
-      case AGRANDIT : barre.setMiLargeur(35); break;
+          if (boulesExtra.size() < 4) {
+              Boule nouvelleBoule = new Boule();
+              nouvelleBoule.place(boule.getX(), boule.getY());
+              nouvelleBoule.copieMouvement(boule);
+              boulesExtra.add(nouvelleBoule);
+          }
+          break;
+      case RETRECIT : 
+          barre.setMiLargeur(15); 
+          chronoBonus = 10000 / DELAI; // 10 secondes
+          break;
+      case AGRANDIT : 
+          barre.setMiLargeur(35); 
+          chronoBonus = 10000 / DELAI; // 10 secondes
+          break;
     }
   }
 
@@ -399,6 +425,15 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
             comp2D.fillOval(265 + (i * 15), 350, 10, 10);
         }
 
+        // --- AFFICHAGE DU CHRONOMETRE SOUS LA RAQUETTE ---
+        if (chronoBonus > 0) {
+            comp2D.setColor(new Color(255, 140, 0)); 
+            int secondesRestantes = (chronoBonus * DELAI) / 1000;
+            // barre.getX() - 70 permet de centrer le texte par rapport à la barre
+            // barre.getY() + 25 le place juste en dessous
+            comp2D.drawString("Reset Effets dans : " + secondesRestantes + "s", barre.getX() - 70, barre.getY() + 25);
+        }
+
         if (phase == PAUSE) {
             comp2D.setColor(new Color(0, 0, 0, 150)); 
             comp2D.fillRect(0, 0, getSize().width, getSize().height);
@@ -407,14 +442,12 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
             comp2D.setFont(new Font("Arial", Font.BOLD, 40));
             comp2D.drawString("PAUSE", 115, 140);
             
-            // Bouton REPRENDRE
             comp2D.setColor(new Color(67, 160, 71));
             comp2D.fillRect(110, 200, 150, 40);
             comp2D.setColor(Color.WHITE);
             comp2D.setFont(new Font("Arial", Font.BOLD, 16));
             comp2D.drawString("REPRENDRE", 132, 226);
             
-            // Bouton QUITTER
             comp2D.setColor(new Color(229, 57, 53));
             comp2D.fillRect(110, 260, 150, 40);
             comp2D.setColor(Color.WHITE);
@@ -444,14 +477,13 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
         if (mx >= 110 && mx <= 260 && my >= 260 && my <= 300) System.exit(0);
     } 
     else if (phase == PAUSE) {
-        // Clic sur REPRENDRE
         if (mx >= 110 && mx <= 260 && my >= 200 && my <= 240) {
             phase = phaseAvantPause;
         }
-        // Clic sur QUITTER (Retour au menu)
         if (mx >= 110 && mx <= 260 && my >= 260 && my <= 300) {
             boulesExtra.clear();
             listeBonus.clear();
+            chronoBonus = 0;
             phase = MENU;
             fini = true; 
         }
