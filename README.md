@@ -14,6 +14,7 @@
 * **Gestion temporelle des effets (Timer dynamique)** : Ajout d'un compte à rebours de 10 secondes pour les altérations d'état (taille, vitesse). Un indicateur textuel "Reset Effets dans : X s" suit les mouvements de la raquette en temps réel pour prévenir l'annulation des effets.
 * **Système de Pause interactif** : Implémentation de l'interface `KeyListener` permettant de geler le jeu avec `P` ou `Echap`. La pause affiche un menu superposé (Overlay) contenant des boutons "Reprendre" et "Quitter".
 * **Menu principal interactif** : Conception d'un écran d'accueil avec des boutons graphiques pour gérer le lancement du thread principal et les boucles de Game Over.
+* **Amélioration Visuelle (Fond d'écran)** : Intégration d'une image de fond sur le thème de l'espace, couplée à un filtre d'assombrissement semi-transparent dynamique pour garantir la lisibilité des éléments de jeu et du HUD.
 * **Création de la Brique Cyan** : Ajout de la classe `BriqueBonus.java` (ID 6) conçue spécifiquement pour déclencher de manière ciblée la chute exclusive des bonus physiques.
 * **HUD (Heads-Up Display)** : Affichage intégré à l'interface de jeu pour le niveau actuel, le score, et les pastilles graphiques rouges représentant les vies restantes.
 * **Système de scoring** : Mise en place d'un compteur incrémentiel attribuant 100 points pour chaque brique détruite et 500 points pour chaque loot physique rattrapé.
