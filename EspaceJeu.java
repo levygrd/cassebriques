@@ -22,6 +22,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
   
   private int vies;
   private int niveauActuel;
+  private int score; // Ajout de la variable de score
 
   private Thread action;
   private boolean fini;
@@ -48,6 +49,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
 
   public void initialiseNiveau() {
     vies = 3;
+    score = 0; // Remise à zéro du score à chaque nouvelle partie
     barre.setMiLargeur(25);
     niveauActuel = 1;
     listeBonus.clear(); 
@@ -91,6 +93,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
                   bonus.getX() - bonus.getRayon() <= barre.getX() + barre.getMiLargeur()) {
                   
                   modifJeu(bonus.getType()); 
+                  score += 500; // 500 points supplémentaires en attrapant le bonus !
                   listeBonus.remove(i);
                   i--; 
               } 
@@ -100,35 +103,22 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
               }
           }
 
-          // ---- 2. GESTION DES BALLES SUPPLÉMENTAIRES (CORRIGÉ) ----
+          // ---- 2. GESTION DES BALLES SUPPLÉMENTAIRES ----
           for (int i = 0; i < boulesExtra.size(); i++) {
               Boule bEx = boulesExtra.get(i);
               bEx.deplace();
               
-              // Rebond sur le bord gauche et droit
-              if (bEx.getX() < bEx.getRayon()) { 
-                  bEx.chocH(); 
-                  bEx.place(bEx.getRayon(), bEx.getY()); 
-              }
-              else if (bEx.getX() > getSize().width - bEx.getRayon()) { 
-                  bEx.chocH(); 
-                  bEx.place(getSize().width - bEx.getRayon(), bEx.getY()); 
-              }
+              if (bEx.getX() < bEx.getRayon()) { bEx.chocH(); bEx.place(bEx.getRayon(), bEx.getY()); }
+              else if (bEx.getX() > getSize().width - bEx.getRayon()) { bEx.chocH(); bEx.place(getSize().width - bEx.getRayon(), bEx.getY()); }
               
-              // Rebond sur le haut
-              if (bEx.getY() < bEx.getRayon()) { 
-                  bEx.chocV(); 
-                  bEx.place(bEx.getX(), bEx.getRayon()); 
-              }
+              if (bEx.getY() < bEx.getRayon()) { bEx.chocV(); bEx.place(bEx.getX(), bEx.getRayon()); }
               else {
-                  // Rebond sur la raquette (Avec la même logique anti-bug que la balle principale)
                   if (bEx.getY() > 310 - bEx.getRayon()) {
                       if ((bEx.getX() - bEx.getRayon() < barre.getX() + barre.getMiLargeur()) && (bEx.getX() + bEx.getRayon() > barre.getX() - barre.getMiLargeur())) {
                           rebondSurBarre(bEx, bEx.getX() - barre.getX());
                           bEx.place(bEx.getX(), 310 - bEx.getRayon());
                       }
                       else {
-                          // Sortie de la balle par le bas
                           if (bEx.getY() > 310 + barre.getHauteur() + bEx.getRayon()) {
                               boulesExtra.remove(i);
                               i--;
@@ -137,7 +127,6 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
                       }
                   }
               }
-              
               gereCollisionBrique(bEx);
           }
 
@@ -155,14 +144,9 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
                 boule.place(boule.getX(), 310-boule.getRayon());
               }
               else {
-                // Si la balle principale tombe...
                 if (boule.getY() > 310 + barre.getHauteur() - boule.getRayon()) {
-                    if (boulesExtra.isEmpty()) { 
-                        phase = SORT; 
-                    } 
-                    else { 
-                        boule = boulesExtra.remove(0); 
-                    }
+                    if (boulesExtra.isEmpty()) { phase = SORT; } 
+                    else { boule = boulesExtra.remove(0); }
                 }                
               }
             }
@@ -215,7 +199,8 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
             if (vies > 0) {
                 JOptionPane.showMessageDialog(this,
                     "<html><h2 style='color: #E53935; text-align: center; margin-top: 5px;'>Balle perdue !</h2>" +
-                    "<p style='text-align: center; font-size: 14px;'>Vies restantes : <b>" + vies + "</b></p></html>",
+                    "<p style='text-align: center; font-size: 14px;'>Vies restantes : <b>" + vies + "</b></p>" +
+                    "<p style='text-align: center; font-size: 14px;'>Score actuel : <b>" + score + "</b> points</p></html>",
                     "Casse briques", JOptionPane.PLAIN_MESSAGE);
                 boulesExtra.clear();
                 listeBonus.clear(); 
@@ -223,6 +208,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
             } else {
                 JOptionPane.showMessageDialog(this,
                     "<html><h1 style='color: #B71C1C; text-align: center;'>GAME OVER</h1>" +
+                    "<p style='text-align: center; font-size: 14px;'>Score final : <b>" + score + "</b></p>" +
                     "<p style='text-align: center; font-size: 14px;'>Retour au menu principal.</p></html>",
                     "Casse briques", JOptionPane.PLAIN_MESSAGE);
                 barre.setMiLargeur(25);
@@ -236,13 +222,14 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
             if (niveauActuel >= 3) {
                 JOptionPane.showMessageDialog(this, 
                     "<html><h1 style='color: #43A047; text-align: center;'>Félicitations !</h1>" +
-                    "<p style='text-align: center; font-size: 14px;'>Vous avez terminé tous les niveaux.</p></html>", 
+                    "<p style='text-align: center; font-size: 14px;'>Vous avez terminé le jeu avec <b>" + score + "</b> points !</p></html>", 
                     "Victoire !", JOptionPane.PLAIN_MESSAGE);
                 phase = MENU;
                 fini = true;
             } else {
                 JOptionPane.showMessageDialog(this, 
                     "<html><h2 style='color: #1E88E5; text-align: center;'>Niveau " + niveauActuel + " terminé !</h2>" +
+                    "<p style='text-align: center; font-size: 14px;'>Score actuel : <b>" + score + "</b> points</p>" +
                     "<p style='text-align: center; font-size: 14px;'>Préparez-vous pour le niveau " + (niveauActuel + 1) + "</p></html>", 
                     "Niveau Complété", JOptionPane.PLAIN_MESSAGE);
                 niveauActuel++;
@@ -265,16 +252,22 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
   }
 
   private void casserBrique(int l, int c) {
+      int briquesAvant = mur.getNbBriques();
       int action = mur.casse(l, c); 
 
-      if (action == 6) {
-          int typeBonus = (int)(Math.random() * 5) + 1; 
-          int briqueX = c * (mur.getLargeurBrique() + 1) + (mur.getLargeurBrique() / 2);
-          int briqueY = l * (mur.getHauteurBrique() + 1) + (mur.getHauteurBrique() / 2);
-          listeBonus.add(new Bonus(briqueX, briqueY, typeBonus));
-      } 
-      else if (action > 0 && action < 6) {
-          modifJeu(action);
+      // Si le nombre de briques a diminué, c'est que la brique vient d'être détruite
+      if (briquesAvant > mur.getNbBriques()) {
+          score += 100; // 100 points par brique détruite !
+
+          if (action == 6) {
+              int typeBonus = (int)(Math.random() * 5) + 1; 
+              int briqueX = c * (mur.getLargeurBrique() + 1) + (mur.getLargeurBrique() / 2);
+              int briqueY = l * (mur.getHauteurBrique() + 1) + (mur.getHauteurBrique() / 2);
+              listeBonus.add(new Bonus(briqueX, briqueY, typeBonus));
+          } 
+          else if (action > 0 && action < 6) {
+              modifJeu(action);
+          }
       }
   }
 
@@ -321,7 +314,6 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
     }
   }
 
-  // MÉTHODE MISE À JOUR POUR CIBLER UNE BOULE SPÉCIFIQUE (Permet aux extras de rebondir en angle !)
   void rebondSurBarre(Boule b, int impact) {
     b.chocV();
     if (impact<-(barre.getMiLargeur()*0.6)) b.modifAngle(30);
@@ -391,13 +383,15 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
             b.dessine(comp2D);
         }
 
+        // --- HUD AVEC LE SCORE ---
         comp2D.setFont(new Font("Arial", Font.BOLD, 14));
         comp2D.setColor(Color.BLACK);
         comp2D.drawString("Niveau : " + niveauActuel, 15, 360);
-        comp2D.drawString("Vies : ", 120, 360);
+        comp2D.drawString("Score : " + score, 110, 360);
+        comp2D.drawString("Vies : ", 220, 360);
         comp2D.setColor(Color.RED);
         for (int i = 0; i < vies; i++) {
-            comp2D.fillOval(165 + (i * 15), 350, 10, 10);
+            comp2D.fillOval(265 + (i * 15), 350, 10, 10);
         }
     }
   }
