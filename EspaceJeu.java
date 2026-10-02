@@ -24,8 +24,9 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
   private int vies;
   private int niveauActuel;
   private int score;
-  private int chronoBonus; // Compteur pour les 30 secondes d'effet
+  private int chronoBonus; // Compteur pour les 10 secondes d'effet
 
+  private Image fondEcran;
   private Thread action;
   private boolean fini;
   private int phase;
@@ -43,6 +44,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
     boule=new Boule();
     listeBonus = new ArrayList<>();
     boulesExtra = new ArrayList<>();
+    fondEcran = new ImageIcon("simple-space-wallpaper-1440x2560-deep-space-night-sky-26295.jpg").getImage();
     delai=DELAI;
     phase=MENU;
 
@@ -92,7 +94,7 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
         case ROULE:
           boule.deplace();
 
-          // --- GESTION DU CHRONO DES BONUS TEMPORAIRES (30 SECONDES) ---
+          // --- GESTION DU CHRONO DES BONUS TEMPORAIRES (10 SECONDES) ---
           if (chronoBonus > 0) {
               chronoBonus--;
               if (chronoBonus <= 0) {
@@ -399,8 +401,14 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
     if (phase == MENU) {
         dessinerMenu(comp2D);
     } else {
-        comp2D.setColor(getBackground());
-        comp2D.fillRect(0,0,getSize().width,getSize().height);
+        if (fondEcran != null) {
+            comp2D.drawImage(fondEcran, 0, 0, getSize().width, getSize().height, this);
+            comp2D.setColor(new Color(0, 0, 0, 120)); 
+            comp2D.fillRect(0, 0, getSize().width, getSize().height);
+        } else {
+            comp2D.setColor(getBackground());
+            comp2D.fillRect(0,0,getSize().width,getSize().height);
+        }
 
         barre.dessine(comp2D);
         boule.dessine(comp2D);
@@ -416,7 +424,8 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
         }
 
         comp2D.setFont(new Font("Arial", Font.BOLD, 14));
-        comp2D.setColor(Color.BLACK);
+        // Passage du texte de score en blanc pour être visible sur fond noir
+        comp2D.setColor(Color.WHITE);
         comp2D.drawString("Niveau : " + niveauActuel, 15, 360);
         comp2D.drawString("Score : " + score, 110, 360);
         comp2D.drawString("Vies : ", 220, 360);
@@ -429,8 +438,6 @@ class EspaceJeu extends JPanel implements Runnable, MouseListener, MouseMotionLi
         if (chronoBonus > 0) {
             comp2D.setColor(new Color(255, 140, 0)); 
             int secondesRestantes = (chronoBonus * DELAI) / 1000;
-            // barre.getX() - 70 permet de centrer le texte par rapport à la barre
-            // barre.getY() + 25 le place juste en dessous
             comp2D.drawString("Reset Effets dans : " + secondesRestantes + "s", barre.getX() - 70, barre.getY() + 25);
         }
 
